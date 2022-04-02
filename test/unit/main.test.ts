@@ -1,5 +1,5 @@
 import {assert} from "chai";
-import {loop} from "../../src/main";
+import {cleanMemory, loop} from "../../src/main";
 import {Game, Memory} from "./mock"
 
 describe("main", () => {
@@ -20,7 +20,7 @@ describe("main", () => {
   });
 
   it("should return void when called with no context", () => {
-    assert.isUndefined(loop());
+    assert.isUndefined(cleanMemory());
   });
 
   it("Automatically delete memory of missing creeps", () => {
@@ -29,7 +29,7 @@ describe("main", () => {
 
     Game.creeps.persistValue = "any value";
 
-    loop();
+    cleanMemory();
 
     assert.isDefined(Memory.creeps.persistValue);
     assert.isUndefined(Memory.creeps.notPersistValue);

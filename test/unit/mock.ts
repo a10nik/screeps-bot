@@ -15,3 +15,8 @@ export const Memory: {
 } = {
   creeps: {}
 };
+
+const globals = require('@screeps/common/lib/constants.js');
+for (const k in globals) {
+  (global as any)[k] = globals[k];
+}

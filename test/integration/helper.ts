@@ -33,7 +33,11 @@ class IntegrationTestHelper {
     const modules = {
         main: readFileSync(DIST_MAIN_JS).toString(),
     };
-    this._player = await this._server.world.addBot({ username: 'player', room: 'W0N1', x: 15, y: 15, modules });
+    this._player = await this._server.world.addBot({ username: 'player', room: 'W0N1', x: 25, y: 18, modules });
+    this._player.on('console', (logs: string[], results: any, userid: string, username: string) => {
+      _.each(logs, (line: string) => console.log(`[console|${username}]`, line));
+    });
+
 
     // Start server
     await this._server.start();
