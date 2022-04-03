@@ -74,11 +74,10 @@ export class ErrorMapper {
         loop();
       } catch (e) {
         if (e instanceof Error) {
-          if ("sim" in Game.rooms) {
-            const message = `Source maps don't work in the simulator - displaying original error`;
-            console.log(`<span style='color:red'>${message}<br>${_.escape(e.stack)}</span>`);
-          } else {
+          try {
             console.log(`<span style='color:red'>${_.escape(this.sourceMappedStackTrace(e))}</span>`);
+          } catch (e2) {
+            console.log("loop error", e.stack);
           }
         } else {
           // can't handle it

@@ -1,4 +1,5 @@
 import {assert} from "chai";
+import { calcBodyCost } from "old-bot/building";
 import {cleanMemory, loop} from "../../src/main";
 import {Game, Memory} from "./mock"
 
@@ -34,4 +35,8 @@ describe("main", () => {
     assert.isDefined(Memory.creeps.persistValue);
     assert.isUndefined(Memory.creeps.notPersistValue);
   });
+
+  it("calculates body cost", () => {
+    assert.equal(calcBodyCost([MOVE]), 50);
+  })
 });

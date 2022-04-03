@@ -13,6 +13,7 @@ declare global {
   interface Memory {
     uuid: number;
     log: any;
+    config: Record<"harvester" | "upgrader" | "builder", number>;
   }
 
   interface CreepMemory {
@@ -39,7 +40,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Automatically delete memory of missing creeps
   cleanMemory();
 });
-
+console.log("starting scripts");
 export const cleanMemory = () => {
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {

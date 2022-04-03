@@ -10,10 +10,18 @@ export const run = function (creep: Creep) {
     }
 
     if (creep.memory.building) {
-        var targets = _.sortBy(creep.room.find(FIND_CONSTRUCTION_SITES), 'structureType');
-        if (targets.length) {
-            if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(targets[0]);
+        var site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+        if (site) {
+            if (creep.build(site) == ERR_NOT_IN_RANGE)
+                creep.moveTo(site);
+        } else {
+            const damaged = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: function (object) {
+                    return object.hits < Math.min(object.hitsMax, 5000);
+                }
+            });
+            if (damaged && creep.repair(damaged) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(damaged);
             }
         }
     }

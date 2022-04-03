@@ -16,27 +16,41 @@ function build(spawn: StructureSpawn, structureType: BuildableStructureConstant)
     }
 }
 
-function calcBodyCost(body: BodyPartConstant[]) {
-    return _.reduce(body, (sum, part) => sum + BODYPART_COST[part], 0);
+export function calcBodyCost(body: BodyPartConstant[]) {
+    return body.reduce((sum, part) => sum + BODYPART_COST[part], 0);
 }
 
 export const run = function (spawn: StructureSpawn) {
+    if (spawn.spawning)
+        return;
+
+    const config = Memory.config || {
+        "harvester": 3,
+        "builder": 3,
+        "upgrader": 3
+    };
 
     build(spawn, STRUCTURE_EXTENSION);
     build(spawn, STRUCTURE_TOWER);
 
     var workerBody: BodyPartConstant[] = [];
     const bodyIteration = [MOVE, MOVE, WORK, CARRY];
-    while (calcBodyCost(workerBody) + calcBodyCost(bodyIteration) <= Game.spawns.Spawn1.room.energyAvailable &&
+    while (calcBodyCost(workerBody) + calcBodyCost(bodyIteration) <= spawn.room.energyAvailable &&
         workerBody.length + bodyIteration.length <= MAX_CREEP_SIZE) {
         workerBody = workerBody.concat(bodyIteration);
     }
-
-    spawn.spawnCreep(workerBody, 'u2', { memory: { role: 'upgrader' } as CreepMemory });
-    spawn.spawnCreep(workerBody, 'u1', { memory: { role: 'upgrader' } as CreepMemory });
-    if (spawn.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
-        spawn.spawnCreep(workerBody, 'b1', { memory: { role: 'builder' } as CreepMemory });
+    if (workerBody.length > 0) {
+        let creepsByRole = _.countBy(Object.values(Game.creeps), c => c.memory.role);
+        const rolesPriority: (keyof typeof config)[] = ["harvester", "upgrader", "builder"];
+        const neededCreeps = rolesPriority.map((r) => ({
+            role: r,
+            wanted: config[r] - (creepsByRole[r] || 0),
+        }));
+        const { role, wanted } = _.sortByAll(neededCreeps, t => -t.wanted)[0];
+        const cost = calcBodyCost(workerBody);
+        if (wanted > 0 || spawn.room.energyCapacityAvailable === spawn.room.energyAvailable) {
+            const code = spawn.spawnCreep(workerBody, role + Math.random(), { memory: { role } as CreepMemory });
+            console.log("spawning", role, JSON.stringify({ cost, code }));
+        }
     }
-    spawn.spawnCreep(workerBody, 'h2', { memory: { role: 'harvester' } as CreepMemory });
-    spawn.spawnCreep(workerBody, 'h1', { memory: { role: 'harvester' } as CreepMemory });
 }
