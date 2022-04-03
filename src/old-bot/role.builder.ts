@@ -17,7 +17,10 @@ export const run = function (creep: Creep) {
         } else {
             const damaged = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: function (object) {
-                    return object.hits < Math.min(object.hitsMax, 5000);
+                    if (object.structureType === STRUCTURE_WALL) {
+                        return object.hits < 500;
+                    }
+                    return object.hits < object.hitsMax;
                 }
             });
             if (damaged && creep.repair(damaged) === ERR_NOT_IN_RANGE) {
